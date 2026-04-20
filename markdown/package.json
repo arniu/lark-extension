@@ -1,0 +1,29 @@
+{
+  "name": "@lark-extension/markdown",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "upload": "npm run build && opdev upload ./dist",
+    "test": "tsc -b"
+  },
+  "dependencies": {
+    "@lark-opdev/block-docs-addon-api": "^0.0.11",
+    "mdast-util-gfm-autolink-literal": "^2.0.1",
+    "mdast-util-gfm-strikethrough": "^2.0.0",
+    "mdast-util-gfm-table": "^2.0.0",
+    "mdast-util-gfm-task-list-item": "^2.0.0",
+    "mdast-util-math": "^3.0.0",
+    "mdast-util-to-markdown": "^2.1.2",
+    "solid-js": "^1.9.10"
+  },
+  "devDependencies": {
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^22.19.13",
+    "typescript": "~5.8.2",
+    "vite": "^7.3.1",
+    "vite-plugin-solid": "^2.11.10"
+  }
+}

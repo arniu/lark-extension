@@ -1,0 +1,13 @@
+{
+  "manifestVersion": 1,
+  "appType": "docs-addon",
+  "appID": "cli_xxxxxxxxxxxx",
+  "blockTypeID": "blk_xxxxxxxxxxxx",
+  "projectName": "lark-extension",
+  "contributes": {
+    "topbar": {
+      "view": "index.html",
+      "minify": true
+    }
+  }
+}

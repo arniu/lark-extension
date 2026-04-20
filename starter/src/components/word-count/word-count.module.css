@@ -1,0 +1,13 @@
+.root {
+  height: 80px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+.count {
+  color: var(--color-primary);
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@lark-extension/workspace",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "verify": "pnpm run format:check && pnpm run build && pnpm run test"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.45.0"
+  }
+}

@@ -1,0 +1,41 @@
+/* 浅色主题 - 对齐飞书官方小组件 */
+:root {
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f2f3ff;
+  --color-bg-hover: #f7f8fa;
+  --color-text: #1d2129;
+  --color-text-secondary: #86909c;
+  --color-text-on-primary: #ffffff;
+  --color-border: #e5e6eb;
+  --color-primary: #007aff;
+  --color-primary-hover: #3395ff;
+  --color-button-secondary-bg: #d6daf7;
+  --color-icon: #a8adbd;
+  --color-icon-outline: #aeb4c5;
+}
+
+/* 深色主题 - 对齐飞书官方小组件 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #2f2f2f;
+    --color-bg-secondary: #35346b;
+    --color-bg-hover: #3b3a69;
+    --color-text: #f0f0f0;
+    --color-text-secondary: #a0a0a0;
+    --color-text-on-primary: #f0f0f0;
+    --color-border: #4a4a4a;
+    --color-primary: #8d88e0;
+    --color-primary-hover: #5951a8;
+    --color-button-secondary-bg: #5951a8;
+    --color-icon: #a0a0a0;
+    --color-icon-outline: #8d88e0;
+  }
+}
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
