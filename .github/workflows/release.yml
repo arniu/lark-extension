@@ -1,0 +1,121 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: "App to release"
+        required: true
+        type: choice
+        options:
+          - starter
+          - markdown
+      target_env:
+        description: "Release target (feishu or lark)"
+        required: true
+        type: choice
+        options:
+          - feishu
+          - lark
+      version:
+        description: "Release version (e.g. 1.0.0)"
+        required: true
+        type: string
+      description:
+        description: "Release description"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.app }}-${{ inputs.target_env }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install opdev CLI
+        run: npm install --global @lark-opdev/cli@latest
+
+      - name: Resolve release credentials
+        env:
+          TARGET_ENV: ${{ inputs.target_env }}
+          APP: ${{ inputs.app }}
+          FEISHU_OPDEV_TOKEN: ${{ secrets.FEISHU_OPDEV_TOKEN }}
+          FEISHU_STARTER_APP_ID: ${{ secrets.FEISHU_STARTER_APP_ID }}
+          FEISHU_STARTER_BLOCK_TYPE_ID: ${{ secrets.FEISHU_STARTER_BLOCK_TYPE_ID }}
+          FEISHU_MARKDOWN_APP_ID: ${{ secrets.FEISHU_MARKDOWN_APP_ID }}
+          FEISHU_MARKDOWN_BLOCK_TYPE_ID: ${{ secrets.FEISHU_MARKDOWN_BLOCK_TYPE_ID }}
+          LARK_OPDEV_TOKEN: ${{ secrets.LARK_OPDEV_TOKEN }}
+          LARK_STARTER_APP_ID: ${{ secrets.LARK_STARTER_APP_ID }}
+          LARK_STARTER_BLOCK_TYPE_ID: ${{ secrets.LARK_STARTER_BLOCK_TYPE_ID }}
+          LARK_MARKDOWN_APP_ID: ${{ secrets.LARK_MARKDOWN_APP_ID }}
+          LARK_MARKDOWN_BLOCK_TYPE_ID: ${{ secrets.LARK_MARKDOWN_BLOCK_TYPE_ID }}
+        run: |
+          set -euo pipefail
+
+          if [ "${TARGET_ENV}" = "feishu" ]; then
+            echo "OPDEV_ENV=feishu" >> "$GITHUB_ENV"
+            echo "OPDEV_TOKEN=${FEISHU_OPDEV_TOKEN}" >> "$GITHUB_ENV"
+            if [ "${APP}" = "starter" ]; then
+              echo "APP_ID=${FEISHU_STARTER_APP_ID}" >> "$GITHUB_ENV"
+              echo "BLOCK_TYPE_ID=${FEISHU_STARTER_BLOCK_TYPE_ID}" >> "$GITHUB_ENV"
+            else
+              echo "APP_ID=${FEISHU_MARKDOWN_APP_ID}" >> "$GITHUB_ENV"
+              echo "BLOCK_TYPE_ID=${FEISHU_MARKDOWN_BLOCK_TYPE_ID}" >> "$GITHUB_ENV"
+            fi
+          else
+            echo "OPDEV_ENV=lark" >> "$GITHUB_ENV"
+            echo "OPDEV_TOKEN=${LARK_OPDEV_TOKEN}" >> "$GITHUB_ENV"
+            if [ "${APP}" = "starter" ]; then
+              echo "APP_ID=${LARK_STARTER_APP_ID}" >> "$GITHUB_ENV"
+              echo "BLOCK_TYPE_ID=${LARK_STARTER_BLOCK_TYPE_ID}" >> "$GITHUB_ENV"
+            else
+              echo "APP_ID=${LARK_MARKDOWN_APP_ID}" >> "$GITHUB_ENV"
+              echo "BLOCK_TYPE_ID=${LARK_MARKDOWN_BLOCK_TYPE_ID}" >> "$GITHUB_ENV"
+            fi
+          fi
+
+          echo "PROJECT_NAME=lark-extension" >> "$GITHUB_ENV"
+
+      - name: Validate release env
+        run: |
+          set -euo pipefail
+          test -n "${OPDEV_TOKEN}"
+          test -n "${APP_ID}"
+          test -n "${BLOCK_TYPE_ID}"
+          test -n "${PROJECT_NAME}"
+
+      - name: Build and upload
+        working-directory: apps/${{ inputs.app }}
+        run: |
+          set -euo pipefail
+          cat > .env <<EOF
+          APP_ID=${APP_ID}
+          BLOCK_TYPE_ID=${BLOCK_TYPE_ID}
+          PROJECT_NAME=${PROJECT_NAME}
+          EOF
+          pnpm run build
+          opdev upload ./dist --version "${{ inputs.version }}" --description "${{ inputs.description }}"
