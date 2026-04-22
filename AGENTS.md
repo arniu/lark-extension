@@ -1,46 +1,63 @@
 # AGENTS.md
 
-本文件供 **AI 编码助手** 与 **人类协作者** 使用；与各包 `README.md` 互补。更通用的 `AGENTS.md` 约定见 [agents.md](https://agents.md/)。若子目录另有 `AGENTS.md`，以**更靠近被改文件**的那份为准。
+本文件面向 AI 编码助手与协作者，提供仓库内的执行规范、命令入口与约束。  
+通用规范参考 [AGENTS.md](https://agents.md/)；若子目录存在更近的 `AGENTS.md`，以更近文件为准。
 
-## 仓库结构
+## Project Overview
 
-pnpm workspace，根包 **`@lark-extension/workspace`**。
+- Monorepo：`pnpm workspace`，根包为 `@lark-extension/workspace`
+- 技术栈：`Vite + Solid + TypeScript + @lark-opdev/block-docs-addon-api`
+- 当前应用：
+  - `@lark-extension/starter` -> `apps/starter/`
+  - `@lark-extension/markdown` -> `apps/markdown/`
+- 预留扩展目录：`packages/*`
 
-| 包名                       | 目录             | 说明                     |
-| -------------------------- | ---------------- | ------------------------ |
-| `@lark-extension/starter`  | `apps/starter/`  | 飞书文档离线小组件模板   |
-| `@lark-extension/markdown` | `apps/markdown/` | 云文档转 Markdown 小组件 |
-| （预留）                   | `packages/*`     | 暂无子包时可忽略         |
+## Setup Commands
 
-子包内的路径说明若无特别注明，均相对于**该包根目录**。
+以下命令默认在仓库根目录执行：
 
-## 命令（在仓库根执行）
+- 安装依赖：`pnpm install`
+- 格式化：`pnpm format`
+- 检查格式：`pnpm format:check`
+- 构建所有包：`pnpm build`
+- 类型检查（仓库 `test`）：`pnpm test`
+- CI 对齐检查：`pnpm verify`（`format:check -> build -> test`）
 
-| 脚本                                | 作用                                                            |
-| ----------------------------------- | --------------------------------------------------------------- |
-| `pnpm install`                      | 安装依赖                                                        |
-| `pnpm format` / `pnpm format:check` | 全仓库 oxfmt 写入 / 仅检查（根 `.oxfmtrc.json`）                |
-| `pnpm build`                        | 对所有含 `build` 脚本的 workspace 包执行 `vite build`           |
-| `pnpm test`                         | 对各含 `test` 脚本的包执行 `tsc -b`（类型检查，**非**单测框架） |
-| `pnpm verify`                       | 依次：`format:check` → `build` → `test`，适合提交或 CI          |
+单包执行统一使用：
 
-**单包执行**：在根目录用 `pnpm --filter "<包名>" run <脚本>`。包名须加引号，避免 zsh 等把 `@` 当成特殊字符。常用脚本：`start`、`build`、`preview`、`upload`（`upload` 会先 build 再调 `opdev`）。
+- `pnpm --filter "<包名>" run <script>`
+- 常用脚本：`start`、`build`、`preview`、`upload`
+- 注意：包名需加引号，避免 zsh 将 `@` 作为特殊字符处理
 
-## 环境与密钥
+## Testing Instructions
 
-从各包下的 `.env.example` 复制为 `.env`，填写 `APP_ID`、`BLOCK_TYPE_ID`、`PROJECT_NAME` 等。勿提交 `.env` 或真实密钥；说明链接见各包 `.env.example` 注释。
+- 本仓库 `test` 为 TypeScript 构建检查（`tsc -b`），不是单测框架
+- 提交前至少保证受影响包可构建
+- 合并前建议执行完整校验：`pnpm verify`
+- 若改动涉及 workspace/路径/依赖，优先执行全仓校验而不是仅单包校验
 
-## 代码约定（starter / markdown 及同栈扩展）
+## Code Style
 
-技术栈：**Vite + Solid + `@lark-opdev/block-docs-addon-api`**。
+- 文件与目录命名优先使用 `kebab-case`
+- 组件组织：`components/<feature>/`，配套 `*.module.css` 与按需 `index.ts` 导出
+- 主题色来自各包 `src/index.css` 的 `:root` 变量（`var(--color-*)`）
+- 平台 API 访问统一通过 `src/lib/blockit-api.ts` 的 `getBlockitApi()` 封装
+- 仓库级格式化工具仅使用根目录 `oxfmt`；不要新增并行格式化入口
 
-- **命名**：源码文件与目录优先 **kebab-case**。
-- **组件**：功能块放在 `components/<功能名>/`，配 **`*.module.css`** 与按需的 `index.ts` 导出；组织方式与 **`@lark-extension/starter`** 保持一致，避免同一包内混用多种样式/目录习惯。
-- **主题色**：用各包 `src/index.css` 里 `:root` 的 **`var(--color-*)`**，勿硬编码与主题冲突的色值。
-- **Blockit**：只通过 **`src/lib/blockit-api.ts`** 的 **`getBlockitApi()`** 及该文件内已有封装访问平台；禁止在业务里 `new BlockitClient()` 或重复造入口。
-- **格式化**：只用根目录 **oxfmt**；子包不单独加 Prettier/oxfmt 作为仓库级入口。
-- **改动验收**：对应包能 `vite build`（或根目录带 `--filter` 的 `build`）；合并前建议跑 `pnpm verify`。
+## Environment & Secrets
 
-## 安全
+- 从各包 `.env.example` 复制为本地 `.env` 后填写配置（如 `APP_ID`、`BLOCK_TYPE_ID`、`PROJECT_NAME`）
+- 禁止提交任何真实密钥、token、内网地址或敏感配置
+- 若新增敏感文件或产物路径，需同步更新 `.gitignore`
 
-勿在代码、日志、issue 中粘贴真实 `APP_ID`、token、内网地址。新增敏感文件或产物路径时，同步 `.gitignore`。
+## PR & Commit Guidelines
+
+- 提交信息建议遵循 Conventional Commits（如 `chore(...)`、`refactor(...)`、`fix(...)`）
+- 一次提交聚焦一个主题，避免混入无关改动
+- PR 描述至少包含：变更摘要、验证方式、风险/回滚点（如有）
+
+## Agent Working Rules
+
+- 先读上下文再改代码，优先遵循现有模式，避免无关重构
+- 涉及结构性调整时，同步更新文档与配置（如 workspace、CI、格式化忽略路径）
+- 回答与提交说明保持简洁、可执行、可验证
