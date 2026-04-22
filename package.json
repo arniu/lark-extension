@@ -11,6 +11,6 @@
     "verify": "pnpm run format:check && pnpm run build && pnpm run test"
   },
   "devDependencies": {
-    "oxfmt": "^0.45.0"
+    "oxfmt": "^0.46.0"
   }
 }

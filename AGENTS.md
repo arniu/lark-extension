@@ -6,11 +6,11 @@
 
 pnpm workspace，根包 **`@lark-extension/workspace`**。
 
-| 包名                       | 目录         | 说明                     |
-| -------------------------- | ------------ | ------------------------ |
-| `@lark-extension/starter`  | `starter/`   | 飞书文档离线小组件模板   |
-| `@lark-extension/markdown` | `markdown/`  | 云文档转 Markdown 小组件 |
-| （预留）                   | `packages/*` | 暂无子包时可忽略         |
+| 包名                       | 目录             | 说明                     |
+| -------------------------- | ---------------- | ------------------------ |
+| `@lark-extension/starter`  | `apps/starter/`  | 飞书文档离线小组件模板   |
+| `@lark-extension/markdown` | `apps/markdown/` | 云文档转 Markdown 小组件 |
+| （预留）                   | `packages/*`     | 暂无子包时可忽略         |
 
 子包内的路径说明若无特别注明，均相对于**该包根目录**。
 

@@ -1,4 +1,3 @@
 packages:
-  - "starter"
-  - "markdown"
+  - "apps/*"
   - "packages/*"
